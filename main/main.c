@@ -19,6 +19,7 @@
 #include "driver/i2c_master.h"
 #include "esp_lvgl_port.h"
 #include "./ui.h"
+#include "cJSON.h"
 
 // --- КОНФІГУРАЦІЯ ЕКРАНУ (720x720 Waveshare 4 inch) ---
 #define LCD_H_RES              720
@@ -38,10 +39,10 @@
 
 static const char *TAG = "WEATHER_P4";
 
-#define WIFI_SSID      "Ilyna_2.4g"
-#define WIFI_PASS      "17856Lena"
+#define WIFI_SSID      "WIFI NAME"
+#define WIFI_PASS      "PASSWORD"
 
-#define WEATHER_API_KEY "850bcfe83ccc1f9199bd6784359c0881"
+#define WEATHER_API_KEY "OPENWEATHER API"
 #define UMAN_LAT       "48.45"
 #define UMAN_LON       "30.13"
 
@@ -60,6 +61,22 @@ typedef enum {
     REQ_TYPE_INDOOR,   // Дані з кімнатних датчиків
     REQ_TYPE_OUTDOOR      // Точний час тощо
 } request_type_t;
+
+void process_openweatherapi_json(const char *json_string) {
+    cJSON *root = cJSON_Parse(json_string);
+    if (root == NULL) {
+        ESP_LOGE(TAG, "Помилка парсингу JSON");
+        return;
+    }
+
+    cJSON* data = cJSON_GetObjectItemCaseSensitive(root, "main");
+    cJSON *temp = cJSON_GetObjectItemCaseSensitive(data, "temp");
+    if (cJSON_IsNumber(temp)) {
+        ui_update_api_weather("Uman", temp->valuedouble);
+    }
+
+    cJSON_Delete(root);
+}
 
 // --- Обробник подій HTTP клієнта ---
 esp_err_t _http_event_handler(esp_http_client_event_t *evt) {
@@ -85,12 +102,16 @@ esp_err_t _http_event_handler(esp_http_client_event_t *evt) {
                 
                 switch (req_type) {
                     case REQ_TYPE_WEATHER:
-                        ESP_LOGI(TAG, "Обробка даних ПОГОДИ...");
-                        // process_weather_json(response_buffer); <--- Ваша функція парсингу
+                        ESP_LOGI(TAG, "Обробка даних API...");
+                        process_openweatherapi_json(response_buffer);
                         break;
                     
                     case REQ_TYPE_INDOOR:
                         ESP_LOGI(TAG, "Обробка даних КІМНАТ...");
+                        // process_indoor_json(response_buffer);
+                        break;
+                    case REQ_TYPE_OUTDOOR:
+                        ESP_LOGI(TAG, "Обробка даних МЕТЕОСТАНЦІЇ...");
                         // process_indoor_json(response_buffer);
                         break;
                         
@@ -118,7 +139,7 @@ esp_err_t _http_event_handler(esp_http_client_event_t *evt) {
 }
 
 // --- Основна задача погоди (Task) ---
-void weather_task(void *pvParameters) {
+void weather_api_task(void *pvParameters) {
     xEventGroupWaitBits(s_wifi_event_group, WIFI_CONNECTED_BIT, pdFALSE, pdTRUE, portMAX_DELAY);
     
     while (1) {
@@ -319,5 +340,5 @@ void app_main(void) {
     ESP_LOGI(TAG, "Wi-Fi ініціалізацію завершено. Запускаємо задачу погоди...");
     
     // Запускаємо задачу у FreeRTOS. Stack size = 10240 байт
-    xTaskCreate(&weather_task, "weather_task", 10240, NULL, 5, NULL);
+    xTaskCreate(&weather_api_task, "weather_task", 10240, NULL, 5, NULL);
 }

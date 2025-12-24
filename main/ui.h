@@ -31,7 +31,7 @@ void ui_update_outdoor_data(float temp, int humidity, int pressure);
  * @param temp Температура
  * @param desc Опис (напр. "Хмарно")
  */
-void ui_update_api_weather(const char* city, float temp, const char* desc);
+void ui_update_api_weather(const char* city, float temp);
 
 /*
  * Оновлення даних кімнат (викликай для кожної кімнати окремо)

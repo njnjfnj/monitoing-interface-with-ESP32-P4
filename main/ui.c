@@ -6,17 +6,17 @@
 #include "esp_lvgl_port.h"
 
 // --- Змінні для зберігання посилань на об'єкти (щоб ми могли їх змінювати) ---
-static lv_obj_t*lbl_outdoor_temp;
-static lv_obj_t*lbl_outdoor_hum;
-static lv_obj_t*lbl_outdoor_press;
+static lv_obj_t* lbl_outdoor_temp;
+static lv_obj_t* lbl_outdoor_hum;
+static lv_obj_t* lbl_outdoor_press;
 
-static lv_obj_t*lbl_api_city;
-static lv_obj_t*lbl_api_temp;
-static lv_obj_t*lbl_api_desc;
+static lv_obj_t* lbl_api_city;
+static lv_obj_t* lbl_api_temp;
+//static lv_obj_t* lbl_api_desc;
 
 // Масиви для 3-х кімнат
-static lv_obj_t*lbl_rooms_co2[3];
-static lv_obj_t*lbl_rooms_temp[3];
+static lv_obj_t* lbl_rooms_co2[3];
+static lv_obj_t* lbl_rooms_temp[3];
 
 // --- Допоміжні функції стилізації ---
 
@@ -83,7 +83,7 @@ static void build_api_page(lv_obj_t* page) {
     lv_obj_set_style_text_color(lbl_api_city, lv_palette_main(LV_PALETTE_BLUE), 0);
 
     lbl_api_temp = create_value_label(page, "-- °C", 1);
-    lbl_api_desc = create_value_label(page, "Loading...", 0);
+    //lbl_api_desc = create_value_label(page, "Loading...", 0);
 }
 
 // 3. Кімнати (Моніторинг якості повітря)
@@ -155,11 +155,11 @@ void ui_update_outdoor_data(float temp, int humidity, int pressure) {
     lvgl_port_unlock();
 }
 
-void ui_update_api_weather(const char* city, float temp, const char* desc) {
+void ui_update_api_weather(const char* city, float temp) { //, const char* desc
     lvgl_port_lock(0);
     if(lbl_api_city) lv_label_set_text(lbl_api_city, city);
     if(lbl_api_temp) lv_label_set_text_fmt(lbl_api_temp, "%.1f °C", temp);
-    if(lbl_api_desc) lv_label_set_text(lbl_api_desc, desc);
+    //if(lbl_api_desc) lv_label_set_text(lbl_api_desc, desc);
     lvgl_port_unlock();
 }
 

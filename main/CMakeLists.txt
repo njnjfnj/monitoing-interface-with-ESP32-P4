@@ -14,5 +14,6 @@ idf_component_register(
         lvgl
         esp_lcd
         esp_lvgl_port
-        esp_lcd_touch_gt911           
+        esp_lcd_touch_gt911       
+        cjson    
 )
