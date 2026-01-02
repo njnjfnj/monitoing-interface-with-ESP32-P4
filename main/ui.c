@@ -155,11 +155,17 @@ void ui_update_outdoor_data(float temp, int humidity, int pressure) {
     lvgl_port_unlock();
 }
 
-void ui_update_api_weather(const char* city, float temp) { //, const char* desc
+void ui_update_api_weather(const char* city, float temp) {
     lvgl_port_lock(0);
     if(lbl_api_city) lv_label_set_text(lbl_api_city, city);
-    if(lbl_api_temp) lv_label_set_text_fmt(lbl_api_temp, "%.1f °C", temp);
-    //if(lbl_api_desc) lv_label_set_text(lbl_api_desc, desc);
+    
+    if(lbl_api_temp) {
+        int integer_part = (int)temp;
+        int decimal_part = (int)((temp - integer_part) * 10);
+        if (decimal_part < 0) decimal_part = -decimal_part; 
+
+        lv_label_set_text_fmt(lbl_api_temp, "%d.%d °C", integer_part, decimal_part);
+    }
     lvgl_port_unlock();
 }
 

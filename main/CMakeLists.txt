@@ -1,19 +1,11 @@
 idf_component_register(
-    SRCS "main.c" "ui.c"              
-    INCLUDE_DIRS "."                  
-    PRIV_REQUIRES 
-        spi_flash 
-        freertos 
-        esp_http_client 
-        esp_wifi 
-        esp_event 
-        nvs_flash 
-        mbedtls 
-        esp_netif                     
-        driver                        
-        lvgl
-        esp_lcd
-        esp_lvgl_port
-        esp_lcd_touch_gt911       
-        cjson    
+    SRCS main.c ui.c
+    INCLUDE_DIRS .)
+
+idf_component_get_property(LVGL_LIB lvgl__lvgl COMPONENT_LIB)
+target_compile_options(
+    ${LVGL_LIB} 
+    PRIVATE 
+        -DLV_LVGL_H_INCLUDE_SIMPLE
+        -DLV_USE_DEMO_MUSIC
 )
